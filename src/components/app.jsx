@@ -1,9 +1,11 @@
+/* eslint-disable import/extensions */
 import React, { Component } from 'react';
 import giphy from 'giphy-api';
 import SearchBar from './search_bar.jsx';
 import Gif from './gif.jsx';
-import listGif from './gif_list.jsx';
 import GifList from './gif_list.jsx';
+
+const GIPHY_API_KEY = '1KMPHCBIOe3hOjJwCJQX49sRc6cM0oIm';
 
 class App extends Component {
   constructor(props) {
@@ -11,21 +13,25 @@ class App extends Component {
 
     this.state = {
       gifs: [],
-      selectedGifId: "gEGX4sqOjmjXaDFxXT"
+      selectedGifId: "gKOY0gqd6SIznR7ACy"
     };
-
-    this.search("homer thinking");
+    this.search = this.search.bind(this);
+    this.selectGif = this.selectGif.bind(this);
   }
 
-  search = (query) => {
-    giphy('6rlTS6VKllCXdbMvTH21RUxV8mz9L8Fy').search({
-      q: query,
-      rating: 'g',
-      limit: 10
-    }, (error, result) => {
+  search(query) {
+    const giphEndpoint = `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${query}&limit=10`
+    fetch(giphEndpoint).then(response => response.json()).then((data) => {
+      const gifs = data.data.map(giph => giph.id)
       this.setState({
-        gifs: result.data
-      });
+        gifs: gifs
+      })
+    })
+  }
+
+  selectGif(id) {
+    this.setState({
+      selectedGifId: id
     });
   }
 
@@ -39,7 +45,7 @@ class App extends Component {
           </div>
         </div>
         <div className="right-scene">
-          <GifList gifs={this.state.gifs} />
+          <GifList gifs={this.state.gifs} selectGif={this.selectGif} />
         </div>
       </div>
     );
